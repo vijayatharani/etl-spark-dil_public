@@ -1,0 +1,29 @@
+
+- Schemaversion: "1.0"
+- extract.omniadat:
+  delimiter: "|"
+  input:
+  -name cms_address
+  uri: "hdfs://nameservice1/${SRCHDFSENV}/source/commsee/cms/CMS_ADDRESS/${YEAR}/${MONTH}/${DAY}
+- extract.hive:
+  input:
+  -name: cms_addr_pre
+  uri: "hdfs://nameservice1/${SRCHDFSENV}/source/commsee/cms/CMS_ADDRESS/${YEAR}/${MONTH}/${PREVDAY}
+-transform.typing
+  input:
+  -name :cms_address_datatype
+  source: cms_address_extract
+  excludeValidation:
+  -year
+  -month
+-transform.sql
+  input:
+  -name: cms_address_datatype
+  uri: "/sql/cms_integrate.sql"
+- load.parquet:
+input:
+  -stage: wrote-integration
+  name: cms_addr
+ uri:"hdfs://nameservice1/${HDFSENV}/dil/cms/cms_adrs
+partitionBy: [year,month]
+hivetable: "${hdfsEnv}_dil_cms.cms_adrs"
